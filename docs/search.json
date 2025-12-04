@@ -12,5 +12,19 @@
     "title": "Home",
     "section": "",
     "text": "This site lists all my reports rendered by Quarto!"
+  },
+  {
+    "objectID": "projects/ence/index.html",
+    "href": "projects/ence/index.html",
+    "title": "Overview",
+    "section": "",
+    "text": "This site contains the multiple reports.\n\n\n\nFull table, Finetune\nFull table, No Finetune\nNo Column 4, Finetune\nNo Colunm 4, No Finetune"
+  },
+  {
+    "objectID": "projects/ence/index.html#marginal-distribution-of-trained-pc",
+    "href": "projects/ence/index.html#marginal-distribution-of-trained-pc",
+    "title": "Overview",
+    "section": "",
+    "text": "Full table, Finetune\nFull table, No Finetune\nNo Column 4, Finetune\nNo Colunm 4, No Finetune"
   }
 ]

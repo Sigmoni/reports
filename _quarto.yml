@@ -1,6 +1,8 @@
 project:
   type: website
   output-dir: docs
+  resources: 
+    - projects/**
 
 website:
   title: "My Reports"
@@ -12,8 +14,6 @@ website:
         menu:
           - text: Overview
             href: projects/ence/index.html
-          - text: About
-            href: projects/ence/about.html
 
 format:
   html:
