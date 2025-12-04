@@ -8,7 +8,10 @@ website:
     left:
       - href: index.qmd
         text: Home
-      - about.qmd
+      - text: Projects
+        menu:
+          - text: Einet CE
+            href: docs/ence/index.html
 
 format:
   html:
