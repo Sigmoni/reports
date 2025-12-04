@@ -11,7 +11,7 @@ website:
       - text: Projects
         menu:
           - text: Einet CE
-            href: docs/ence/index.html
+            href: projects/ence/index.html
 
 format:
   html:
