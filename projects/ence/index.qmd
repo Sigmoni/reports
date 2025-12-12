@@ -20,3 +20,7 @@ This site contains the multiple reports.
 * [Full table, No Finetune](vis_10k_full_noft.html)
 * [No Column 4, Finetune](vis_10k_noc4.html)
 * [No Colunm 4, No Finetune](vis_10k_noc4_noft.html)
+
+## Change in Standardization Method to avoid leakage
+
+* [Report](vis_logit.html)

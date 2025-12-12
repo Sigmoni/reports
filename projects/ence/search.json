@@ -1,105 +1,98 @@
 [
   {
-    "objectID": "vis_10k_noc4_noft.html",
-    "href": "vis_10k_noc4_noft.html",
-    "title": "Test Marginal Distribution",
+    "objectID": "vis_logit.html",
+    "href": "vis_logit.html",
+    "title": "Change Standardization",
     "section": "",
-    "text": "config = {\n    \"ignore\": [\"order_item\"],\n    \"train\": {\n        \"epochs\": 500,\n        \"lr\": 0.01,\n        \"samples\": None,\n        \"naive_dequantization\": True,\n    },\n    \"finetune\": {\n        \"activate\": False,\n        \"samples\": 1000,\n        \"epochs\": 50,\n        \"lr\": 0.01,\n    },\n    \"eval\": {\n        \"activate\": True,\n        \"samples\": 1000,\n    },\n    \"partitions\": 5,\n}\n\nmodel_config = EinetConfig(\n    num_channels=1,\n    num_leaves=5,\n    depth=2,\n    num_sums=5,\n    num_repetitions=5,\n    num_classes=1,\n    leaf_type=Normal,\n    layer_type='einsum',\n    dropout=0.0\n)"
+    "text": "Current Problem: truncation error at the boundary is huge.\nProposed Solution: map the data samples back to \\(\\mathbb{R}\\)\nProposed workflow: original data samples \\(\\to [0, 1] \\to \\mathbb{R}\\)\n\n\n\nSay, \\(g: x \\to y\\) is an one-to-one and monotonic projection. \\(p_X\\) is the probablity distribution of variable \\(x\\), and \\(p_Y\\) for \\(y\\).\nWe have:\n\\[\nF_X(x) = \\mathbb{P}\\{X \\leq x\\} = \\mathbb{P}\\{g(X) \\leq g(x)\\} = \\mathbb{P}\\{Y \\leq g(x)\\} = F_Y(g(x))\n\\]\nHence:\n\\[\np_X(x) = \\frac{d}{dx} F_X(x) = \\frac{d}{dx}F_Y(g(x)) = p_Y(g(x)) \\cdot g'(x)\n\\]\nAlso:\n\\[\n\\int_a^b p_X(x) dx = \\int_a^b p_Y(g(x)) \\cdot g'(x) dx = \\int_{g(a)}^{g(b)} p_Y(y) dy\n\\]\nExtend to higher dimension:\n\\[\n\\int_A p_X(x) dx = \\int_{g(A)} p_Y(y) dy\n\\]\nThe conclusion suggests that any monotonic (order preserving, inversible, etc.) projection can be used as standardization method.\n\n\n\nI choose logit function as \\(g\\):\n\\[\ng(x) = \\log \\frac{x}{1 - x}\n\\]\n\n\nFor numeric stability, I cannot use the full range \\([0, 1]\\), thus it should be clamp to \\([\\epsilon, 1 - \\epsilon]\\).\nFor a reasonable range, \\(\\text{logit}(10^{-4}) \\approx -9.2\\). Thus I use \\(\\epsilon = 10^{-4}\\).\nAlso, I don’t want range length to be compressed too small, thus I add a temperature \\(\\tau\\):\n\\[\ng(x) = \\tau \\log \\frac{x}{1 - x}\n\\]\nAnd I want (\\(\\rho\\) denotes a range \\([a, b]\\)):\n\\[\n\\frac{|g(\\rho)|}{|\\rho|} = \\frac{g(b) - g(a)}{b - a} \\ge \\text{Constant}\n\\]\nA sufficient condition is (using Lagrange’s Mean Value Theorem):\n\\[\n\\forall x \\in (0, 1), \\,\\, g'(x) \\ge \\text{Constant}\n\\]\nLet constant be 1, we have:\n\\[\n\\forall x \\in (0, 1), \\,\\, \\frac{\\tau}{x(1 - x)} \\ge 1\n\\]\nThis yields that \\(\\tau \\ge 0.25\\). I choose \\(\\tau = 2.5\\) for better resolution."
   },
   {
-    "objectID": "vis_10k_noc4_noft.html#column-0",
-    "href": "vis_10k_noc4_noft.html#column-0",
+    "objectID": "vis_logit.html#idea",
+    "href": "vis_logit.html#idea",
+    "title": "Change Standardization",
+    "section": "",
+    "text": "Current Problem: truncation error at the boundary is huge.\nProposed Solution: map the data samples back to \\(\\mathbb{R}\\)\nProposed workflow: original data samples \\(\\to [0, 1] \\to \\mathbb{R}\\)"
+  },
+  {
+    "objectID": "vis_logit.html#essentials",
+    "href": "vis_logit.html#essentials",
+    "title": "Change Standardization",
+    "section": "",
+    "text": "Say, \\(g: x \\to y\\) is an one-to-one and monotonic projection. \\(p_X\\) is the probablity distribution of variable \\(x\\), and \\(p_Y\\) for \\(y\\).\nWe have:\n\\[\nF_X(x) = \\mathbb{P}\\{X \\leq x\\} = \\mathbb{P}\\{g(X) \\leq g(x)\\} = \\mathbb{P}\\{Y \\leq g(x)\\} = F_Y(g(x))\n\\]\nHence:\n\\[\np_X(x) = \\frac{d}{dx} F_X(x) = \\frac{d}{dx}F_Y(g(x)) = p_Y(g(x)) \\cdot g'(x)\n\\]\nAlso:\n\\[\n\\int_a^b p_X(x) dx = \\int_a^b p_Y(g(x)) \\cdot g'(x) dx = \\int_{g(a)}^{g(b)} p_Y(y) dy\n\\]\nExtend to higher dimension:\n\\[\n\\int_A p_X(x) dx = \\int_{g(A)} p_Y(y) dy\n\\]\nThe conclusion suggests that any monotonic (order preserving, inversible, etc.) projection can be used as standardization method."
+  },
+  {
+    "objectID": "vis_logit.html#application",
+    "href": "vis_logit.html#application",
+    "title": "Change Standardization",
+    "section": "",
+    "text": "I choose logit function as \\(g\\):\n\\[\ng(x) = \\log \\frac{x}{1 - x}\n\\]\n\n\nFor numeric stability, I cannot use the full range \\([0, 1]\\), thus it should be clamp to \\([\\epsilon, 1 - \\epsilon]\\).\nFor a reasonable range, \\(\\text{logit}(10^{-4}) \\approx -9.2\\). Thus I use \\(\\epsilon = 10^{-4}\\).\nAlso, I don’t want range length to be compressed too small, thus I add a temperature \\(\\tau\\):\n\\[\ng(x) = \\tau \\log \\frac{x}{1 - x}\n\\]\nAnd I want (\\(\\rho\\) denotes a range \\([a, b]\\)):\n\\[\n\\frac{|g(\\rho)|}{|\\rho|} = \\frac{g(b) - g(a)}{b - a} \\ge \\text{Constant}\n\\]\nA sufficient condition is (using Lagrange’s Mean Value Theorem):\n\\[\n\\forall x \\in (0, 1), \\,\\, g'(x) \\ge \\text{Constant}\n\\]\nLet constant be 1, we have:\n\\[\n\\forall x \\in (0, 1), \\,\\, \\frac{\\tau}{x(1 - x)} \\ge 1\n\\]\nThis yields that \\(\\tau \\ge 0.25\\). I choose \\(\\tau = 2.5\\) for better resolution."
+  },
+  {
+    "objectID": "vis_logit.html#training-a-model-with-z-score-standardization",
+    "href": "vis_logit.html#training-a-model-with-z-score-standardization",
+    "title": "Change Standardization",
+    "section": "Training a model with Z-score Standardization:",
+    "text": "Training a model with Z-score Standardization:\nconfig = {\n    \"train\": {\n        \"epochs\": 500,\n        \"lr\": 0.01,\n        \"samples\": None,\n        \"naive_dequantization\": True,\n        \"standardization\": \"z-score\", # Alt: \"logit\"\n    },\n    \"finetune\": {\n        \"activate\": False,\n        \"samples\": 1000,\n        \"epochs\": 50,\n        \"lr\": 0.01,\n    },\n    \"eval\": {\n        \"activate\": True,\n        \"samples\": 1000,\n    },\n    \"partitions\": 5,\n}\n\n\nGenerating evaluation queries...\nPreprocessing data...\nUsing naive dequantization...\nApplying z-score standardization...\nTraining model...\n\n\n\n\n\n\n\n\n\nEvaluating model...\nGMQ: 3.067032402719737;\n50%: 2.2408485495027604;\n90%: 2.6734368967932394;\n95%: 253.07973394462869;\nMAX: 564.9195758452238"
+  },
+  {
+    "objectID": "vis_logit.html#training-a-model-with-logit-standardization",
+    "href": "vis_logit.html#training-a-model-with-logit-standardization",
+    "title": "Change Standardization",
+    "section": "Training a model with Logit Standardization:",
+    "text": "Training a model with Logit Standardization:\nconfig = {\n    \"train\": {\n        \"epochs\": 500,\n        \"lr\": 0.01,\n        \"samples\": None,\n        \"naive_dequantization\": True,\n        \"standardization\": \"logit\", # Alt: \"z-score\"\n    },\n    \"finetune\": {\n        \"activate\": False,\n        \"samples\": 1000,\n        \"epochs\": 50,\n        \"lr\": 0.01,\n    },\n    \"eval\": {\n        \"activate\": True,\n        \"samples\": 1000,\n    },\n    \"partitions\": 5,\n}\n\n\nGenerating evaluation queries...\nPreprocessing data...\nUsing naive dequantization...\nApplying logit transformation...\nTraining model...\n\n\n\n\n\n\n\n\n\nEvaluating model...\nGMQ: 1.1305918793921608;\n50%: 1.1187701929634826;\n90%: 1.2575532381515169;\n95%: 1.3295269505105132;\nMAX: 1.7030936231298184"
+  },
+  {
+    "objectID": "vis_logit.html#visualization-marginal",
+    "href": "vis_logit.html#visualization-marginal",
+    "title": "Change Standardization",
+    "section": "Visualization (marginal)",
+    "text": "Visualization (marginal)\n\nColumn 0\n\n\n                            \n                                            \n\n\n\n\nColumn 1\n\n\n                            \n                                            \n\n\n\n\nColumn 2\n\n\n                            \n                                            \n\n\n\n\nColumn 3\n\n\n                            \n                                            \n\n\n\n\nColumn 4\n\n\n                            \n                                            \n\n\n\n\nColumn 5\n\n\n                            \n                                            \n\n\n\n\nColumn 6"
+  },
+  {
+    "objectID": "vis_10k_noc4.html",
+    "href": "vis_10k_noc4.html",
+    "title": "Test Marginal Distribution",
+    "section": "",
+    "text": "config = {\n    \"ignore\": [\"order_item\"],\n    \"train\": {\n        \"epochs\": 500,\n        \"lr\": 0.01,\n        \"samples\": None,\n        \"naive_dequantization\": True,\n    },\n    \"finetune\": {\n        \"activate\": True,\n        \"samples\": 1000,\n        \"epochs\": 50,\n        \"lr\": 0.01,\n    },\n    \"eval\": {\n        \"activate\": True,\n        \"samples\": 1000,\n    },\n    \"partitions\": 5,\n}\n\nmodel_config = EinetConfig(\n    num_channels=1,\n    num_leaves=5,\n    depth=2,\n    num_sums=5,\n    num_repetitions=5,\n    num_classes=1,\n    leaf_type=Normal,\n    layer_type='einsum',\n    dropout=0.0\n)"
+  },
+  {
+    "objectID": "vis_10k_noc4.html#column-0",
+    "href": "vis_10k_noc4.html#column-0",
     "title": "Test Marginal Distribution",
     "section": "Column 0",
     "text": "Column 0"
   },
   {
-    "objectID": "vis_10k_noc4_noft.html#column-1",
-    "href": "vis_10k_noc4_noft.html#column-1",
+    "objectID": "vis_10k_noc4.html#column-1",
+    "href": "vis_10k_noc4.html#column-1",
     "title": "Test Marginal Distribution",
     "section": "Column 1",
     "text": "Column 1"
   },
   {
-    "objectID": "vis_10k_noc4_noft.html#column-2",
-    "href": "vis_10k_noc4_noft.html#column-2",
+    "objectID": "vis_10k_noc4.html#column-2",
+    "href": "vis_10k_noc4.html#column-2",
     "title": "Test Marginal Distribution",
     "section": "Column 2",
     "text": "Column 2"
   },
   {
-    "objectID": "vis_10k_noc4_noft.html#column-3",
-    "href": "vis_10k_noc4_noft.html#column-3",
+    "objectID": "vis_10k_noc4.html#column-3",
+    "href": "vis_10k_noc4.html#column-3",
     "title": "Test Marginal Distribution",
     "section": "Column 3",
     "text": "Column 3"
   },
   {
-    "objectID": "vis_10k_noc4_noft.html#column-5",
-    "href": "vis_10k_noc4_noft.html#column-5",
+    "objectID": "vis_10k_noc4.html#column-5",
+    "href": "vis_10k_noc4.html#column-5",
     "title": "Test Marginal Distribution",
     "section": "Column 5",
     "text": "Column 5"
   },
   {
-    "objectID": "vis_10k_noc4_noft.html#column-6",
-    "href": "vis_10k_noc4_noft.html#column-6",
-    "title": "Test Marginal Distribution",
-    "section": "Column 6",
-    "text": "Column 6"
-  },
-  {
-    "objectID": "vis_10k_full_noft.html",
-    "href": "vis_10k_full_noft.html",
-    "title": "Test Marginal Distribution",
-    "section": "",
-    "text": "config = {\n    \"ignore\": [\"order_item\"],\n    \"train\": {\n        \"epochs\": 500,\n        \"lr\": 0.01,\n        \"samples\": None,\n        \"naive_dequantization\": True,\n    },\n    \"finetune\": {\n        \"activate\": False,\n        \"samples\": 1000,\n        \"epochs\": 50,\n        \"lr\": 0.01,\n    },\n    \"eval\": {\n        \"activate\": True,\n        \"samples\": 1000,\n    },\n    \"partitions\": 5,\n}\n\nmodel_config = EinetConfig(\n    num_channels=1,\n    num_leaves=5,\n    depth=2,\n    num_sums=5,\n    num_repetitions=5,\n    num_classes=1,\n    leaf_type=Normal,\n    layer_type='einsum',\n    dropout=0.0\n)"
-  },
-  {
-    "objectID": "vis_10k_full_noft.html#column-0",
-    "href": "vis_10k_full_noft.html#column-0",
-    "title": "Test Marginal Distribution",
-    "section": "Column 0",
-    "text": "Column 0"
-  },
-  {
-    "objectID": "vis_10k_full_noft.html#column-1",
-    "href": "vis_10k_full_noft.html#column-1",
-    "title": "Test Marginal Distribution",
-    "section": "Column 1",
-    "text": "Column 1"
-  },
-  {
-    "objectID": "vis_10k_full_noft.html#column-2",
-    "href": "vis_10k_full_noft.html#column-2",
-    "title": "Test Marginal Distribution",
-    "section": "Column 2",
-    "text": "Column 2"
-  },
-  {
-    "objectID": "vis_10k_full_noft.html#column-3",
-    "href": "vis_10k_full_noft.html#column-3",
-    "title": "Test Marginal Distribution",
-    "section": "Column 3",
-    "text": "Column 3"
-  },
-  {
-    "objectID": "vis_10k_full_noft.html#column-4",
-    "href": "vis_10k_full_noft.html#column-4",
-    "title": "Test Marginal Distribution",
-    "section": "Column 4",
-    "text": "Column 4"
-  },
-  {
-    "objectID": "vis_10k_full_noft.html#column-5",
-    "href": "vis_10k_full_noft.html#column-5",
-    "title": "Test Marginal Distribution",
-    "section": "Column 5",
-    "text": "Column 5"
-  },
-  {
-    "objectID": "vis_10k_full_noft.html#column-6",
-    "href": "vis_10k_full_noft.html#column-6",
+    "objectID": "vis_10k_noc4.html#column-6",
+    "href": "vis_10k_noc4.html#column-6",
     "title": "Test Marginal Distribution",
     "section": "Column 6",
     "text": "Column 6"
@@ -161,50 +154,106 @@
     "text": "Column 6"
   },
   {
-    "objectID": "vis_10k_noc4.html",
-    "href": "vis_10k_noc4.html",
+    "objectID": "vis_10k_full_noft.html",
+    "href": "vis_10k_full_noft.html",
     "title": "Test Marginal Distribution",
     "section": "",
-    "text": "config = {\n    \"ignore\": [\"order_item\"],\n    \"train\": {\n        \"epochs\": 500,\n        \"lr\": 0.01,\n        \"samples\": None,\n        \"naive_dequantization\": True,\n    },\n    \"finetune\": {\n        \"activate\": True,\n        \"samples\": 1000,\n        \"epochs\": 50,\n        \"lr\": 0.01,\n    },\n    \"eval\": {\n        \"activate\": True,\n        \"samples\": 1000,\n    },\n    \"partitions\": 5,\n}\n\nmodel_config = EinetConfig(\n    num_channels=1,\n    num_leaves=5,\n    depth=2,\n    num_sums=5,\n    num_repetitions=5,\n    num_classes=1,\n    leaf_type=Normal,\n    layer_type='einsum',\n    dropout=0.0\n)"
+    "text": "config = {\n    \"ignore\": [\"order_item\"],\n    \"train\": {\n        \"epochs\": 500,\n        \"lr\": 0.01,\n        \"samples\": None,\n        \"naive_dequantization\": True,\n    },\n    \"finetune\": {\n        \"activate\": False,\n        \"samples\": 1000,\n        \"epochs\": 50,\n        \"lr\": 0.01,\n    },\n    \"eval\": {\n        \"activate\": True,\n        \"samples\": 1000,\n    },\n    \"partitions\": 5,\n}\n\nmodel_config = EinetConfig(\n    num_channels=1,\n    num_leaves=5,\n    depth=2,\n    num_sums=5,\n    num_repetitions=5,\n    num_classes=1,\n    leaf_type=Normal,\n    layer_type='einsum',\n    dropout=0.0\n)"
   },
   {
-    "objectID": "vis_10k_noc4.html#column-0",
-    "href": "vis_10k_noc4.html#column-0",
+    "objectID": "vis_10k_full_noft.html#column-0",
+    "href": "vis_10k_full_noft.html#column-0",
     "title": "Test Marginal Distribution",
     "section": "Column 0",
     "text": "Column 0"
   },
   {
-    "objectID": "vis_10k_noc4.html#column-1",
-    "href": "vis_10k_noc4.html#column-1",
+    "objectID": "vis_10k_full_noft.html#column-1",
+    "href": "vis_10k_full_noft.html#column-1",
     "title": "Test Marginal Distribution",
     "section": "Column 1",
     "text": "Column 1"
   },
   {
-    "objectID": "vis_10k_noc4.html#column-2",
-    "href": "vis_10k_noc4.html#column-2",
+    "objectID": "vis_10k_full_noft.html#column-2",
+    "href": "vis_10k_full_noft.html#column-2",
     "title": "Test Marginal Distribution",
     "section": "Column 2",
     "text": "Column 2"
   },
   {
-    "objectID": "vis_10k_noc4.html#column-3",
-    "href": "vis_10k_noc4.html#column-3",
+    "objectID": "vis_10k_full_noft.html#column-3",
+    "href": "vis_10k_full_noft.html#column-3",
     "title": "Test Marginal Distribution",
     "section": "Column 3",
     "text": "Column 3"
   },
   {
-    "objectID": "vis_10k_noc4.html#column-5",
-    "href": "vis_10k_noc4.html#column-5",
+    "objectID": "vis_10k_full_noft.html#column-4",
+    "href": "vis_10k_full_noft.html#column-4",
+    "title": "Test Marginal Distribution",
+    "section": "Column 4",
+    "text": "Column 4"
+  },
+  {
+    "objectID": "vis_10k_full_noft.html#column-5",
+    "href": "vis_10k_full_noft.html#column-5",
     "title": "Test Marginal Distribution",
     "section": "Column 5",
     "text": "Column 5"
   },
   {
-    "objectID": "vis_10k_noc4.html#column-6",
-    "href": "vis_10k_noc4.html#column-6",
+    "objectID": "vis_10k_full_noft.html#column-6",
+    "href": "vis_10k_full_noft.html#column-6",
+    "title": "Test Marginal Distribution",
+    "section": "Column 6",
+    "text": "Column 6"
+  },
+  {
+    "objectID": "vis_10k_noc4_noft.html",
+    "href": "vis_10k_noc4_noft.html",
+    "title": "Test Marginal Distribution",
+    "section": "",
+    "text": "config = {\n    \"ignore\": [\"order_item\"],\n    \"train\": {\n        \"epochs\": 500,\n        \"lr\": 0.01,\n        \"samples\": None,\n        \"naive_dequantization\": True,\n    },\n    \"finetune\": {\n        \"activate\": False,\n        \"samples\": 1000,\n        \"epochs\": 50,\n        \"lr\": 0.01,\n    },\n    \"eval\": {\n        \"activate\": True,\n        \"samples\": 1000,\n    },\n    \"partitions\": 5,\n}\n\nmodel_config = EinetConfig(\n    num_channels=1,\n    num_leaves=5,\n    depth=2,\n    num_sums=5,\n    num_repetitions=5,\n    num_classes=1,\n    leaf_type=Normal,\n    layer_type='einsum',\n    dropout=0.0\n)"
+  },
+  {
+    "objectID": "vis_10k_noc4_noft.html#column-0",
+    "href": "vis_10k_noc4_noft.html#column-0",
+    "title": "Test Marginal Distribution",
+    "section": "Column 0",
+    "text": "Column 0"
+  },
+  {
+    "objectID": "vis_10k_noc4_noft.html#column-1",
+    "href": "vis_10k_noc4_noft.html#column-1",
+    "title": "Test Marginal Distribution",
+    "section": "Column 1",
+    "text": "Column 1"
+  },
+  {
+    "objectID": "vis_10k_noc4_noft.html#column-2",
+    "href": "vis_10k_noc4_noft.html#column-2",
+    "title": "Test Marginal Distribution",
+    "section": "Column 2",
+    "text": "Column 2"
+  },
+  {
+    "objectID": "vis_10k_noc4_noft.html#column-3",
+    "href": "vis_10k_noc4_noft.html#column-3",
+    "title": "Test Marginal Distribution",
+    "section": "Column 3",
+    "text": "Column 3"
+  },
+  {
+    "objectID": "vis_10k_noc4_noft.html#column-5",
+    "href": "vis_10k_noc4_noft.html#column-5",
+    "title": "Test Marginal Distribution",
+    "section": "Column 5",
+    "text": "Column 5"
+  },
+  {
+    "objectID": "vis_10k_noc4_noft.html#column-6",
+    "href": "vis_10k_noc4_noft.html#column-6",
     "title": "Test Marginal Distribution",
     "section": "Column 6",
     "text": "Column 6"

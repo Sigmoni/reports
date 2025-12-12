@@ -1,10 +1,24 @@
 [
   {
-    "objectID": "about.html",
-    "href": "about.html",
-    "title": "About",
+    "objectID": "projects/ence/index.html",
+    "href": "projects/ence/index.html",
+    "title": "Overview",
     "section": "",
-    "text": "About this site"
+    "text": "This site contains the multiple reports.\n\n\n\nFull table, Finetune\nFull table, No Finetune\nNo Column 4, Finetune\nNo Colunm 4, No Finetune\n\n\n\n\n\nReport"
+  },
+  {
+    "objectID": "projects/ence/index.html#marginal-distribution-of-trained-pc",
+    "href": "projects/ence/index.html#marginal-distribution-of-trained-pc",
+    "title": "Overview",
+    "section": "",
+    "text": "Full table, Finetune\nFull table, No Finetune\nNo Column 4, Finetune\nNo Colunm 4, No Finetune"
+  },
+  {
+    "objectID": "projects/ence/index.html#change-in-standardization-method-to-avoid-leakage",
+    "href": "projects/ence/index.html#change-in-standardization-method-to-avoid-leakage",
+    "title": "Overview",
+    "section": "",
+    "text": "Report"
   },
   {
     "objectID": "index.html",
@@ -14,17 +28,10 @@
     "text": "This site lists all my reports rendered by Quarto!"
   },
   {
-    "objectID": "projects/ence/index.html",
-    "href": "projects/ence/index.html",
-    "title": "Overview",
+    "objectID": "about.html",
+    "href": "about.html",
+    "title": "About",
     "section": "",
-    "text": "This site contains the multiple reports.\n\n\n\nFull table, Finetune\nFull table, No Finetune\nNo Column 4, Finetune\nNo Colunm 4, No Finetune"
-  },
-  {
-    "objectID": "projects/ence/index.html#marginal-distribution-of-trained-pc",
-    "href": "projects/ence/index.html#marginal-distribution-of-trained-pc",
-    "title": "Overview",
-    "section": "",
-    "text": "Full table, Finetune\nFull table, No Finetune\nNo Column 4, Finetune\nNo Colunm 4, No Finetune"
+    "text": "About this site"
   }
 ]
